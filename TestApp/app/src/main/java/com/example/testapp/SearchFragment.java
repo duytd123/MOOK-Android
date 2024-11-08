@@ -1,27 +1,42 @@
 package com.example.testapp;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import android.widget.Toast;
+
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class SearchFragment extends Fragment {
+public class SearchFragment extends Fragment implements DataAdapter.OnItemClickListener {
 
     private EditText searchEditText;
     private RecyclerView searchRecyclerView;
-    private SearchAdapter searchAdapter;
-    private List<DataModel> fullDataList;
-    private List<DataModel> filteredList;
+    private DataAdapter searchAdapter;
+    private ArrayList<DataModel> fullDataList;
+    private ArrayList<DataModel> filteredList;
+    private int trendingOffset = 0;
+    private final int LIMIT = 100;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -31,13 +46,74 @@ public class SearchFragment extends Fragment {
 
         fullDataList = new ArrayList<>();
         filteredList = new ArrayList<>();
-
-        searchAdapter = new SearchAdapter(filteredList);
-        searchRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        searchRecyclerView.setAdapter(searchAdapter);
+        loadGifs(API.BASE_SEARCH_URL + API.API_KEY + "&limit=" + LIMIT + "q=vietnam");
+        initializeRecyclerView();
 
         setupSearchFunctionality();
         return view;
+    }
+
+    private void initializeRecyclerView() {
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        searchRecyclerView.setLayoutManager(layoutManager);
+        searchRecyclerView.addItemDecoration(new SpaceItem(4));
+        searchRecyclerView.setHasFixedSize(true);
+
+        searchAdapter = new DataAdapter(getContext(), filteredList);
+        searchRecyclerView.setAdapter(searchAdapter);
+
+        // Load more Trending GIFs on scroll
+        searchRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (!recyclerView.canScrollVertically(1)) {
+                    loadMoreGifs();
+                }
+            }
+        });
+    }
+
+    private void loadMoreGifs() {
+        String url = API.BASE_SEARCH_URL + API.API_KEY + "&limit=" + LIMIT + "&q=vietnam";
+        loadGifs(url);
+    }
+
+    private void loadGifs(String url) {
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @SuppressLint("NotifyDataSetChanged")
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray dataArray = response.getJSONArray("data");
+
+                            for (int i = 0; i < dataArray.length(); i++) {
+                                JSONObject obj = dataArray.getJSONObject(i);
+                                JSONObject imagesObj = obj.getJSONObject("images");
+                                JSONObject downsizedMedium = imagesObj.getJSONObject("downsized_medium");
+                                String imageUrl = downsizedMedium.getString("url");
+                                int height = downsizedMedium.getInt("height");
+
+                                filteredList.add(new DataModel(imageUrl, height, ""));
+                            }
+                            for (DataModel dm : filteredList){
+                                System.out.println(dm);
+                            }
+
+                            searchAdapter.notifyDataSetChanged();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+        MySingleton.getInstance(getContext()).addToRequestQueue(objectRequest);
     }
 
     private void setupSearchFunctionality() {
@@ -74,5 +150,13 @@ public class SearchFragment extends Fragment {
             }
         }
         searchAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onItemClick(int pos) {
+        Intent fullView = new Intent(getContext(), FullActivity.class);
+        DataModel clickedItem = filteredList.get(pos);
+        fullView.putExtra("imageUrl", clickedItem.getImageUrl());
+        startActivity(fullView);
     }
 }
