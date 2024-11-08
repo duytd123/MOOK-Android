@@ -29,16 +29,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements DataAdapter.OnItemClickListener {
+public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
     private final ArrayList<DataModel> ModelList = new ArrayList<>();
     private DataAdapter trendingAdapter;
-    private int trendingOffset = 0;
-    private final int LIMIT = 20;
 
-    public static final String API_KEY = "OgyK6RaYJRt81BKJDvHu36TQfMrjYUi2";
-    public static final String BASE_URL = "https://api.giphy.com/v1/gifs/trending?api_key=";
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -47,32 +42,8 @@ public class MainActivity extends AppCompatActivity implements DataAdapter.OnIte
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        initializeRecyclerView();
         initializeViewPagerWithTabs();
-        loadGifs(BASE_URL + API_KEY + "&limit=" + LIMIT);
-    }
 
-    private void initializeRecyclerView() {
-        recyclerView = findViewById(R.id.recyclerView);
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.addItemDecoration(new SpaceItem(4));
-        recyclerView.setHasFixedSize(true);
-
-        trendingAdapter = new DataAdapter(MainActivity.this, ModelList);
-        recyclerView.setAdapter(trendingAdapter);
-        trendingAdapter.setOnItemClickListener(this::onItemClick);
-
-        // Load more Trending GIFs on scroll
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (!recyclerView.canScrollVertically(1)) {
-                    loadMoreGifs();
-                }
-            }
-        });
     }
 
     private void initializeViewPagerWithTabs() {
@@ -108,55 +79,8 @@ public class MainActivity extends AppCompatActivity implements DataAdapter.OnIte
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                recyclerView.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
             }
         });
     }
 
-    private void loadGifs(String url) {
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @SuppressLint("NotifyDataSetChanged")
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray dataArray = response.getJSONArray("data");
-
-                            for (int i = 0; i < dataArray.length(); i++) {
-                                JSONObject obj = dataArray.getJSONObject(i);
-                                JSONObject imagesObj = obj.getJSONObject("images");
-                                JSONObject downsizedMedium = imagesObj.getJSONObject("downsized_medium");
-                                String imageUrl = downsizedMedium.getString("url");
-                                int height = downsizedMedium.getInt("height");
-
-                                ModelList.add(new DataModel(imageUrl, height, ""));
-                            }
-                            trendingAdapter.notifyDataSetChanged();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-        MySingleton.getInstance(this).addToRequestQueue(objectRequest);
-    }
-
-    private void loadMoreGifs() {
-        String url = BASE_URL + API_KEY + "&limit=" + LIMIT + "&offset=" + trendingOffset;
-        trendingOffset += LIMIT;
-        loadGifs(url);
-    }
-
-    @Override
-    public void onItemClick(int pos) {
-        Intent fullView = new Intent(this, FullActivity.class);
-        DataModel clickedItem = ModelList.get(pos);
-        fullView.putExtra("imageUrl", clickedItem.getImageUrl());
-        startActivity(fullView);
-    }
 }
