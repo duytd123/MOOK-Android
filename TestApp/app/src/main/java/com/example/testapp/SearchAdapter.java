@@ -44,7 +44,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
         }
 
         public void bind(DataModel dataModel) {
-            textView.setText(dataModel.getName());
+            textView.setText(dataModel.getTitle());
         }
     }
 }

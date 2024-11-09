@@ -3,10 +3,10 @@ package com.example.testapp;
 public class DataModel {
     private String imageUrl;
     private int height;
-    private String name;
+    private String title;
 
-    public DataModel(String imageUrl, int height,String name) {
-        this.name = name;
+    public DataModel(String imageUrl, int height,String title) {
+        this.title = title;
         this.imageUrl = imageUrl;
         this.height = height;
     }
@@ -27,12 +27,12 @@ public class DataModel {
         this.height = height;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class DataModel {
         return "DataModel{" +
                 "imageUrl='" + imageUrl + '\'' +
                 ", height=" + height +
-                ", name='" + name + '\'' +
+                ", title='" + title + '\'' +
                 '}';
     }
 }

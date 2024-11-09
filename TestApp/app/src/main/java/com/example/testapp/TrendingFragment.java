@@ -100,10 +100,12 @@ public class TrendingFragment extends Fragment implements DataAdapter.OnItemClic
                                 JSONObject downsizedMedium = imagesObj.getJSONObject("downsized_medium");
                                 String imageUrl = downsizedMedium.getString("url");
                                 int height = downsizedMedium.getInt("height");
-
-                                trendingModelList.add(new DataModel(imageUrl, height, ""));
+                                String title = obj.getString("title");
+                                trendingModelList.add(new DataModel(imageUrl, height, title));
                             }
-
+                            for (DataModel dm : trendingModelList){
+                                System.out.println(dm);
+                            }
                             if (!trendingModelList.isEmpty()) {
                                 trendingRecyclerView.setVisibility(View.VISIBLE);
                                 emptyText.setVisibility(View.GONE);
@@ -114,6 +116,7 @@ public class TrendingFragment extends Fragment implements DataAdapter.OnItemClic
 
                             trendingAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
+                            Toast.makeText(getContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
                             e.printStackTrace();
                         }
                     }

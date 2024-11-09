@@ -8,9 +8,11 @@ import android.text.TextWatcher;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -32,37 +34,38 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
 
     private EditText searchEditText;
     private RecyclerView searchRecyclerView;
+    private Button searchButton;
     private DataAdapter searchAdapter;
-    private ArrayList<DataModel> fullDataList;
-    private ArrayList<DataModel> filteredList;
-    private int trendingOffset = 0;
-    private final int LIMIT = 100;
+    private ArrayList<DataModel> filteredList = new ArrayList<>();
+    ;
+    private int searchOffset = 0;
+    private final int LIMIT = 20;
+    private String trendingGifLink = API.BASE_TRENDING_URL + API.API_KEY + "&limit=" + LIMIT;
+    private String searchGifLink = API.BASE_SEARCH_URL + API.API_KEY + "&limit=" + LIMIT + "&q=";
+    private boolean isSearching = false;
+    private String currentQuery = "";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         searchEditText = view.findViewById(R.id.searchEditText);
         searchRecyclerView = view.findViewById(R.id.searchRecyclerView);
-
-        fullDataList = new ArrayList<>();
-        filteredList = new ArrayList<>();
-        loadGifs(API.BASE_SEARCH_URL + API.API_KEY + "&limit=" + LIMIT + "q=vietnam");
+        searchButton = view.findViewById(R.id.searchButton);
+        loadTrendingGifs(trendingGifLink);
         initializeRecyclerView();
-
-        setupSearchFunctionality();
+        searchAdapter.setOnItemClickListener(this::onItemClick);
+        searchButton.setOnClickListener(v -> performSearch());
         return view;
     }
 
     private void initializeRecyclerView() {
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         searchRecyclerView.setLayoutManager(layoutManager);
-        searchRecyclerView.addItemDecoration(new SpaceItem(4));
         searchRecyclerView.setHasFixedSize(true);
 
         searchAdapter = new DataAdapter(getContext(), filteredList);
         searchRecyclerView.setAdapter(searchAdapter);
 
-        // Load more Trending GIFs on scroll
         searchRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -72,10 +75,17 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
                 }
             }
         });
+
     }
 
     private void loadMoreGifs() {
-        String url = API.BASE_SEARCH_URL + API.API_KEY + "&limit=" + LIMIT + "&q=vietnam";
+        String url;
+        if (isSearching) {
+            url = searchGifLink + currentQuery + "&offset=" + searchOffset;
+        } else {
+            url = trendingGifLink + "&offset=" + searchOffset;
+        }
+        searchOffset += LIMIT;
         loadGifs(url);
     }
 
@@ -94,15 +104,13 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
                                 JSONObject downsizedMedium = imagesObj.getJSONObject("downsized_medium");
                                 String imageUrl = downsizedMedium.getString("url");
                                 int height = downsizedMedium.getInt("height");
-
-                                filteredList.add(new DataModel(imageUrl, height, ""));
-                            }
-                            for (DataModel dm : filteredList){
-                                System.out.println(dm);
+                                String title = obj.getString("title");
+                                filteredList.add(new DataModel(imageUrl, height, title));
                             }
 
                             searchAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
+                            Toast.makeText(getContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
                             e.printStackTrace();
                         }
                     }
@@ -116,41 +124,57 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
         MySingleton.getInstance(getContext()).addToRequestQueue(objectRequest);
     }
 
-    private void setupSearchFunctionality() {
-        searchEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+    private void loadTrendingGifs(String url) {
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @SuppressLint("NotifyDataSetChanged")
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray dataArray = response.getJSONArray("data");
 
-            }
+                            for (int i = 0; i < dataArray.length(); i++) {
+                                JSONObject obj = dataArray.getJSONObject(i);
+                                JSONObject imagesObj = obj.getJSONObject("images");
+                                JSONObject downsizedMedium = imagesObj.getJSONObject("downsized_medium");
+                                String imageUrl = downsizedMedium.getString("url");
+                                int height = downsizedMedium.getInt("height");
+                                String title = obj.getString("title");
+                                filteredList.add(new DataModel(imageUrl, height, title));
+                            }
+                            for (DataModel dm : filteredList) {
+                                System.out.println(dm);
+                            }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                performSearch(charSequence.toString());
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
+                            searchAdapter.notifyDataSetChanged();
+                        } catch (JSONException e) {
+                            Toast.makeText(getContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+        MySingleton.getInstance(getContext()).addToRequestQueue(objectRequest);
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void performSearch(String query) {
+    private void performSearch() {
         filteredList.clear();
-
-        if (query.isEmpty()) {
-            filteredList.addAll(fullDataList);
+        searchOffset = 0;
+        currentQuery = searchEditText.getText().toString();
+        isSearching = !currentQuery.isEmpty();
+        if (isSearching) {
+            loadGifs(searchGifLink + currentQuery);
         } else {
-            for (DataModel item : fullDataList) {
-                if (item.getName().toLowerCase().contains(query.toLowerCase())) {
-                    filteredList.add(item);
-                }
-            }
+            loadTrendingGifs(trendingGifLink);
         }
-        searchAdapter.notifyDataSetChanged();
     }
+
 
     @Override
     public void onItemClick(int pos) {
