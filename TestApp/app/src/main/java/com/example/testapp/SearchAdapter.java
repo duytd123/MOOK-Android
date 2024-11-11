@@ -1,11 +1,14 @@
+
 package com.example.testapp;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
@@ -36,15 +39,18 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView textView;
+        private ImageView gifImageView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            textView = itemView.findViewById(R.id.textView);
+            gifImageView = itemView.findViewById(R.id.gifImageView);
         }
 
         public void bind(DataModel dataModel) {
-            textView.setText(dataModel.getName());
+            Glide.with(itemView.getContext())
+                    .asGif() // Specify that this is a GIF
+                    .load(dataModel.getImageUrl())
+                    .into(gifImageView);
         }
     }
 }

@@ -1,16 +1,30 @@
 package com.example.testapp;
 
-public class DataModel {
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "favorite_gifs")
+public class RoomDataModel {
+    @PrimaryKey(autoGenerate = true)
+    private int id;
     private String imageUrl;
     private int height;
     private String name;
     private boolean isFavorite;
 
-    public DataModel(String imageUrl, int height, String name, boolean isFavorite) {
-        this.name = name;
+    public RoomDataModel(String imageUrl, int height, String name, boolean isFavorite) {
         this.imageUrl = imageUrl;
         this.height = height;
+        this.name = name;
         this.isFavorite = isFavorite;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getImageUrl() {

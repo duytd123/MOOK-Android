@@ -1,21 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp">
 
+    <!-- Title Bar for "Favorites" at the Top -->
     <TextView
-        android:id="@+id/favorites_empty_text"
+        android:id="@+id/favorites_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Empty"
+        android:text="Favorites"
         android:textSize="24sp"
-        android:layout_centerInParent="true"
-        android:visibility="gone"/>
+        android:textStyle="bold"
+        android:textColor="@color/textColorPrimary"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp" />
 
+    <!-- Empty State Layout with Image and Text -->
+    <LinearLayout
+        android:id="@+id/favorites_empty_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_below="@id/favorites_title">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_empty"
+            android:contentDescription="No favorites icon"/>
+
+        <TextView
+            android:id="@+id/favorites_empty_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No favorites yet!"
+            android:textSize="18sp"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/textColorSecondary"/>
+    </LinearLayout>
+
+    <!-- RecyclerView for displaying favorite items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/favorites_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"/>
+        android:layout_height="0dp"
+        android:layout_below="@id/favorites_title"
+        android:layout_above="@id/refresh_button"
+        android:visibility="gone"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        android:layout_marginTop="8dp" />
 
+    <!-- Refresh Button at Bottom -->
+    <Button
+        android:id="@+id/refresh_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Refresh Favorites"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="40dp"/>
 </RelativeLayout>

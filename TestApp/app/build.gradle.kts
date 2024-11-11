@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.volley)
     implementation(libs.ui.geometry.android)
     implementation(libs.recyclerview)
+    implementation(libs.lifecycle.viewmodel.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
