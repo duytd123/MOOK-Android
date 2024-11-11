@@ -180,7 +180,7 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
     public void onItemClick(int pos) {
         Intent fullView = new Intent(getContext(), FullActivity.class);
         DataModel clickedItem = filteredList.get(pos);
-        fullView.putExtra("imageUrl", clickedItem.getImageUrl());
+        fullView.putExtra("imageFull", clickedItem);
         startActivity(fullView);
     }
 }

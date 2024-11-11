@@ -140,7 +140,7 @@ public class TrendingFragment extends Fragment implements DataAdapter.OnItemClic
     public void onItemClick(int pos) {
         Intent fullView = new Intent(getContext(), FullActivity.class);
         DataModel clickedItem = trendingModelList.get(pos);
-        fullView.putExtra("imageUrl", clickedItem.getImageUrl());
+        fullView.putExtra("imageFull", clickedItem);
         startActivity(fullView);
     }
 }

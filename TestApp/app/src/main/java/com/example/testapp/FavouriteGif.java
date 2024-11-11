@@ -1,15 +1,33 @@
 package com.example.testapp;
-import java.io.Serializable;
 
-public class DataModel implements Serializable{
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "favourite_gif")
+public class FavouriteGif {
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+    @ColumnInfo(name = "imageUrl")
     private String imageUrl;
+    @ColumnInfo(name = "height")
     private int height;
+    @ColumnInfo(name = "title")
     private String title;
 
-    public DataModel(String imageUrl, int height,String title) {
-        this.title = title;
+    public FavouriteGif(int id, String imageUrl, int height, String title) {
+        this.id = id;
         this.imageUrl = imageUrl;
         this.height = height;
+        this.title = title;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getImageUrl() {
@@ -38,8 +56,9 @@ public class DataModel implements Serializable{
 
     @Override
     public String toString() {
-        return "DataModel{" +
-                "imageUrl='" + imageUrl + '\'' +
+        return "FavouriteGif{" +
+                "id=" + id +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", height=" + height +
                 ", title='" + title + '\'' +
                 '}';
