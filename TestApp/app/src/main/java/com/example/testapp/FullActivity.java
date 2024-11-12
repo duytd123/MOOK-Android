@@ -23,6 +23,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.DatabaseConfiguration;
+import androidx.room.InvalidationTracker;
+import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
@@ -32,6 +35,8 @@ import com.bumptech.glide.request.transition.Transition;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public class FullActivity extends AppCompatActivity {
@@ -69,6 +74,7 @@ public class FullActivity extends AppCompatActivity {
                 dialog.dismiss();
             });
             btnFavourite.setOnClickListener(view -> {
+                addFavouriteGif(imgFull);
                 dialog.dismiss();
             });
             dialog.show();
@@ -91,5 +97,27 @@ public class FullActivity extends AppCompatActivity {
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, imgFull.getTitle() + ".gif");
         downloadManager.enqueue(request);
         Toast.makeText(this, "Downloaded sucessfully !", Toast.LENGTH_SHORT).show();
+    }
+
+    private void addFavouriteGif(DataModel imgFull) {
+        FavouriteGif favoriteGif = new FavouriteGif(
+                imgFull.getImageUrl(),
+                imgFull.getHeight(),
+                imgFull.getTitle()
+        );
+        AppDatabase db = AppDatabase.getInstance(this);
+        new Thread(() -> {
+            FavouriteGif existingGif = db.favouriteGifDAO().getFavouriteGifByUrl(favoriteGif.getImageUrl());
+            runOnUiThread(() -> {
+                if (existingGif != null) {
+                    Toast.makeText(this, "The GIF already exists", Toast.LENGTH_SHORT).show();
+                } else {
+                    new Thread(() -> {
+                        db.favouriteGifDAO().insertFavouriteGif(favoriteGif);
+                        runOnUiThread(() -> Toast.makeText(this, "Added to Favourites", Toast.LENGTH_SHORT).show());
+                    }).start();
+                }
+            });
+        }).start();
     }
 }

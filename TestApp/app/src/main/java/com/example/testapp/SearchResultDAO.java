@@ -12,6 +12,9 @@ public interface SearchResultDAO {
     @Insert
     void insertSearchResult(SearchResult searchResult);
 
+    @Insert
+    void insertListSearchResult(List<SearchResult> searchResultList);
+
     @Delete
     void deleteSearchResult(SearchResult searchResult);
 

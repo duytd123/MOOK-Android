@@ -6,13 +6,22 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "search_result")
 public class SearchResult {
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
     private int id;
-    @ColumnInfo(name = "search")
-    private String search;
 
-    public SearchResult(int id, String search) {
-        this.id = id;
-        this.search = search;
+    @ColumnInfo(name = "image_url")
+    private String imageUrl;
+
+    @ColumnInfo(name = "height")
+    private int height;
+
+    @ColumnInfo(name = "title")
+    private String title;
+
+    public SearchResult(String imageUrl, int height, String title) {
+        this.imageUrl = imageUrl;
+        this.height = height;
+        this.title = title;
     }
 
     public int getId() {
@@ -23,19 +32,37 @@ public class SearchResult {
         this.id = id;
     }
 
-    public String getSearch() {
-        return search;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setSearch(String search) {
-        this.search = search;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Override
     public String toString() {
         return "SearchResult{" +
                 "id=" + id +
-                ", search='" + search + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", height=" + height +
+                ", title='" + title + '\'' +
                 '}';
     }
 }

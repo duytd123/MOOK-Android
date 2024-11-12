@@ -15,8 +15,7 @@ public class FavouriteGif {
     @ColumnInfo(name = "title")
     private String title;
 
-    public FavouriteGif(int id, String imageUrl, int height, String title) {
-        this.id = id;
+    public FavouriteGif(String imageUrl, int height, String title) {
         this.imageUrl = imageUrl;
         this.height = height;
         this.title = title;

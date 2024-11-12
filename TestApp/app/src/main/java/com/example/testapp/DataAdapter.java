@@ -7,9 +7,11 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 
 public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
@@ -17,6 +19,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
     private Context context;
     private ArrayList<DataModel> modelList;
     private OnItemClickListener listener;
+    private OnItemLongClickListener onItemLongClickListener;
 
     public DataAdapter(Context context, ArrayList<DataModel> modelList) {
         this.context = context;
@@ -33,7 +36,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DataModel model = modelList.get(position);
-        holder.bind(model, listener);
+        holder.bind(model, listener, onItemLongClickListener);
 
         Glide.with(context)
                 .asGif()
@@ -61,11 +64,19 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
             gifImageView = itemView.findViewById(R.id.gifImageView);
         }
 
-        public void bind(DataModel model, OnItemClickListener listener) {
+        public void bind(DataModel model, OnItemClickListener listener, OnItemLongClickListener longClickListener) {
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onItemClick(getAdapterPosition());
                 }
+            });
+
+            itemView.setOnLongClickListener(v -> {
+                if (longClickListener != null) {
+                    longClickListener.onItemLongClick(getAdapterPosition());
+                    return true;
+                }
+                return false;
             });
         }
     }
@@ -74,8 +85,16 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
         void onItemClick(int pos);
     }
 
+    public interface OnItemLongClickListener {
+        void onItemLongClick(int pos);
+    }
+
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+        this.onItemLongClickListener = onItemLongClickListener;
     }
 
 
