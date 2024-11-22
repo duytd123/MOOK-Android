@@ -2,7 +2,6 @@ package com.example.testapp;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "favorite_gifs")
@@ -30,14 +29,6 @@ public class FavoritesGif {
         this.isFavorite = isFavorite;
     }
 
-    @Ignore
-    public FavoritesGif(int id, String name, String imageUrl, int height, boolean isFavorite) {
-        this.id = id;
-        this.name = name;
-        this.imageUrl = imageUrl;
-        this.height = height;
-        this.isFavorite = isFavorite;
-    }
 
     public int getId() {
         return id;

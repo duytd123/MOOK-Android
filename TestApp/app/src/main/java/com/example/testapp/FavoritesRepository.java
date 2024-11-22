@@ -1,6 +1,7 @@
 package com.example.testapp;
 
 import android.app.Application;
+
 import androidx.lifecycle.LiveData;
 
 import java.util.List;
@@ -20,10 +21,6 @@ public class FavoritesRepository {
         return allFavorites;
     }
 
-    public void insert(FavoritesGif favoriteGif) {
-        AppDatabase.databaseWriteExecutor.execute(() -> favoriteGifDao.insert(favoriteGif));
-    }
-
     public void insertIfNotExist(FavoritesGif favoriteGif) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             FavoritesGif existingGif = favoriteGifDao.getFavoriteByImageUrl(favoriteGif.getImageUrl());
@@ -32,4 +29,11 @@ public class FavoritesRepository {
             }
         });
     }
+    public void delete(FavoritesGif favoriteGif) {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            favoriteGifDao.delete(favoriteGif);
+        });
+    }
+
+
 }

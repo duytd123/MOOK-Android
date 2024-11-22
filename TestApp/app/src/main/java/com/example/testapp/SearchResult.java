@@ -9,29 +9,23 @@ public class SearchResult {
     private int id;
     private String imageUrl;
     private int height;
+    private String searchKeyword;
 
-    public SearchResult(String imageUrl, int height) {
+    public SearchResult(String imageUrl, int height, String searchKeyword) {
         this.imageUrl = imageUrl;
         this.height = height;
+        this.searchKeyword = searchKeyword;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    public int getHeight() {
-        return height;
-    }
-    public String getImageUrl() {
-        return imageUrl;
-    }
+    public int getHeight() { return height; }
+    public void setHeight(int height) { this.height = height; }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
+    public String getSearchKeyword() { return searchKeyword; }
+    public void setSearchKeyword(String searchKeyword) { this.searchKeyword = searchKeyword; }
 }

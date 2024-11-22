@@ -18,7 +18,7 @@ public interface FavoriteGifDao {
     void insertAll(List<FavoritesGif> favoritesGifs);
 
     @Query("SELECT * FROM favorite_gifs WHERE image_Url = :imageUrl LIMIT 1")
-    FavoritesGif getFavoriteByImageUrl(String imageUrl);  // Get favorite by URL
+    FavoritesGif getFavoriteByImageUrl(String imageUrl);
 
     @Query("SELECT * FROM favorite_gifs")
     LiveData<List<FavoritesGif>> getAllFavorites();

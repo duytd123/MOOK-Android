@@ -8,17 +8,18 @@
     <!-- Top Trending Bar -->
     <TextView
         android:id="@+id/trending_title_bar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:padding="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:padding="20dp"
         android:text="Trending"
-        android:textSize="20sp"
-        android:textColor="@android:color/white"
+        android:textColor="@color/textColorPrimary"
+        android:textSize="24sp"
+        android:textStyle="bold"
         android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
 
     <!-- Empty Text -->
     <TextView

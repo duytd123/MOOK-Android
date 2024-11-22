@@ -19,11 +19,21 @@
         android:id="@+id/btnRemove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Remove GIF" />
+        android:text="Remove GIF"
+        android:layout_marginBottom="8dp"/>
 
+
+    <!-- Download and Share Buttons -->
     <Button
-        android:id="@+id/btnCancel"
+        android:id="@+id/btnDownload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cancel" />
+        android:text="Download GIF"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/btnShare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Share GIF" />
 </LinearLayout>

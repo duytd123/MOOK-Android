@@ -39,4 +39,9 @@ public class FavoritesViewModel extends AndroidViewModel {
     public void insert(FavoritesGif favoriteGif) {
         favoritesRepository.insertIfNotExist(favoriteGif);
     }
+    public void remove(FavoritesGif favoriteGif) {
+        favoritesRepository.delete(favoriteGif);
+    }
+
+
 }

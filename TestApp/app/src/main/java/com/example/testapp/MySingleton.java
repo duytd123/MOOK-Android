@@ -16,6 +16,7 @@ public class MySingleton {
         ctx = context;
         requestQueue = getRequestQueue();
     }
+
     public static MySingleton getInstance(Context context) {
         if (instance == null) {
             instance = new MySingleton(context);

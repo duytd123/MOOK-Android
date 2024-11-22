@@ -5,5 +5,5 @@
     <color name="textColorSecondary">#FFFFFFFF</color>
     <color name="selected_item_color">#F8DE03</color>
     <color name="textColorPrimary">#817070</color>
-
+    <color name="cardview_light_background">#FFFFFF</color>
 </resources>

@@ -1,12 +1,10 @@
 package com.example.testapp;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.annotation.NonNull;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +12,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,24 +24,19 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
     private ArrayList<DataModel> modelList;
     private OnItemClickListener listener;
     private FavoritesViewModel favoritesViewModel;
-    private List<String> favoriteUrls = new ArrayList<>(); // Stores URLs of favorite GIFs
-    private int selectedPosition = -1;  // Keep this existing functionality
+    private List<String> favoriteUrls = new ArrayList<>();
 
     public DataAdapter(Context context, ArrayList<DataModel> modelList, FavoritesViewModel favoritesViewModel) {
         this.context = context;
         this.modelList = modelList;
         this.favoritesViewModel = favoritesViewModel;
 
-        // Observe changes in favorites and update favoriteUrls list
-        favoritesViewModel.getAllFavorites().observeForever(new Observer<List<DataModel>>() {
-            @Override
-            public void onChanged(List<DataModel> favorites) {
-                favoriteUrls.clear();
-                for (DataModel model : favorites) {
-                    favoriteUrls.add(model.getImageUrl());
-                }
-                notifyDataSetChanged(); // Update UI when favorites list changes
+        favoritesViewModel.getAllFavorites().observeForever(favorites -> {
+            favoriteUrls.clear();
+            for (DataModel model : favorites) {
+                favoriteUrls.add(model.getImageUrl());
             }
+            notifyDataSetChanged();
         });
     }
 
@@ -57,22 +52,28 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
         DataModel model = modelList.get(position);
         holder.bind(model, listener);
 
-        Glide.with(context)
-                .asGif()
-                .load(model.getImageUrl())
-                .override(model.getHeight())
-                .into(holder.gifImageView);
-
-        // Highlight if the GIF is in favorites
-        if (favoriteUrls.contains(model.getImageUrl())) {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(androidx.cardview.R.color.cardview_light_background));
+        String imageUrl = model.getImageUrl();
+        if (imageUrl.startsWith("/")) {
+            Glide.with(context)
+                    .asGif()
+                    .load(new File(imageUrl))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .override(model.getHeight())
+                    .into(holder.gifImageView);
         } else {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.transparent));
+
+            Glide.with(context)
+                    .asGif()
+                    .load(imageUrl)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .override(model.getHeight())
+                    .into(holder.gifImageView);
         }
 
-        // Apply selected position highlighting (original functionality)
-        if (selectedPosition == position) {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.selected_item_color));
+        if (favoriteUrls.contains(imageUrl)) {
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.cardview_light_background));
+        } else {
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent));
         }
 
         ViewGroup.LayoutParams params = holder.gifImageView.getLayoutParams();
@@ -86,7 +87,6 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
         return modelList.size();
     }
 
-    // New helper method to check if a GIF is already a favorite
     private boolean isFavorite(String imageUrl) {
         return favoriteUrls.contains(imageUrl);
     }
@@ -108,15 +108,15 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
                 }
             });
 
-            // Long click to open GIF in FullActivity or add to favorites if not already added
             itemView.setOnLongClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     DataModel selectedModel = adapter.modelList.get(position);
 
-                    // Check if GIF is already a favorite
                     if (adapter.isFavorite(selectedModel.getImageUrl())) {
                         Toast.makeText(context, "Already in favorites", Toast.LENGTH_SHORT).show();
+                        FavoritesGif favoriteGif = new FavoritesGif(selectedModel.getName(), selectedModel.getImageUrl(), selectedModel.getHeight(), true);
+                        favoritesViewModel.remove(favoriteGif);
                     } else {
                         FavoritesGif favoriteGif = new FavoritesGif(selectedModel.getName(), selectedModel.getImageUrl(), selectedModel.getHeight(), true);
                         favoritesViewModel.insert(favoriteGif);
