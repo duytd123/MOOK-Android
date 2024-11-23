@@ -48,6 +48,7 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
     private String trendingGifLink = API.BASE_TRENDING_URL + API.API_KEY + "&limit=" + LIMIT;
     private String searchGifLink = API.BASE_SEARCH_URL + API.API_KEY + "&limit=" + LIMIT + "&q=";
     private boolean isSearching = false;
+    private boolean isLoading = false;
     private String currentQuery = "";
 
     private SharedPreferences sharedPreferences;
@@ -65,11 +66,11 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
         searchButton = view.findViewById(R.id.searchButton);
         noResultsMessage = view.findViewById(R.id.noResultsMessage);
 
-        loadTrendingGifs(trendingGifLink);
-        initializeRecyclerView();
         sharedPreferences = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String lastSearchKeyword = sharedPreferences.getString(LAST_SEARCH_RESULTS, "");
-        searchEditText.setText(lastSearchKeyword);
+        currentQuery = sharedPreferences.getString(LAST_SEARCH_RESULTS, "");
+        searchEditText.setText(currentQuery);
+        performSearch();
+        initializeRecyclerView();
         searchAdapter.setOnItemClickListener(this::onItemClick);
         searchButton.setOnClickListener(v -> performSearch());
         loadCachedSearchResults();
@@ -88,23 +89,47 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (!recyclerView.canScrollVertically(1)) {
-                    loadMoreGifs();
+
+                // Kiểm tra nếu không đang tải
+                if (!isLoading) {
+                    // Lấy layout manager hiện tại
+                    StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) searchRecyclerView.getLayoutManager();
+
+                    if (layoutManager != null) {
+                        // Lấy vị trí các item cuối đang hiển thị
+                        int[] lastVisibleItemPositions = layoutManager.findLastVisibleItemPositions(null);
+                        int lastVisibleItemPosition = getLastVisibleItem(lastVisibleItemPositions);
+
+                        // Nếu vị trí item cuối >= tổng số item - 2 (để buffer), bắt đầu load thêm
+                        if (lastVisibleItemPosition >= filteredList.size() - 2) {
+                            loadMoreGifs();
+                        }
+                    }
                 }
             }
         });
 
     }
 
-    private void loadMoreGifs() {
-        String url;
-        if (isSearching) {
-            url = searchGifLink + currentQuery + "&offset=" + searchOffset;
-        } else {
-            url = trendingGifLink + "&offset=" + searchOffset;
+    // Lấy vị trí lớn nhất trong mảng
+    private int getLastVisibleItem(int[] lastVisibleItemPositions) {
+        int maxSize = 0;
+        for (int i = 0; i < lastVisibleItemPositions.length; i++) {
+            if (i == 0 || lastVisibleItemPositions[i] > maxSize) {
+                maxSize = lastVisibleItemPositions[i];
+            }
         }
-        searchOffset += LIMIT;
-        loadGifs(url);
+        return maxSize;
+    }
+
+    private void loadMoreGifs() {
+        if (!isLoading) {
+            isLoading = true; // Đánh dấu đang tải
+            String url = isSearching ? searchGifLink + currentQuery + "&offset=" + searchOffset
+                    : trendingGifLink + "&offset=" + searchOffset;
+            searchOffset += LIMIT;
+            loadGifs(url);
+        }
     }
 
     private void loadGifs(String url) {
@@ -113,6 +138,7 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
                     @SuppressLint("NotifyDataSetChanged")
                     @Override
                     public void onResponse(JSONObject response) {
+                        isLoading = false;
                         try {
                             JSONArray dataArray = response.getJSONArray("data");
 
@@ -129,6 +155,7 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
                             saveSearchResultsToDatabase(filteredList);
                             noResultsMessage.setVisibility(filteredList.isEmpty() ? View.VISIBLE : View.GONE);
                         } catch (JSONException e) {
+                            isLoading = false;
                             Toast.makeText(getContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
                             e.printStackTrace();
                         }
@@ -137,6 +164,7 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        isLoading = false;
                         Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -149,6 +177,7 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
                     @SuppressLint("NotifyDataSetChanged")
                     @Override
                     public void onResponse(JSONObject response) {
+                        isLoading = false;
                         try {
                             JSONArray dataArray = response.getJSONArray("data");
 
@@ -167,6 +196,7 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
 
                             searchAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
+                            isLoading = false;
                             Toast.makeText(getContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
                             e.printStackTrace();
                         }
@@ -175,6 +205,7 @@ public class SearchFragment extends Fragment implements DataAdapter.OnItemClickL
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        isLoading = false;
                         Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });

@@ -36,6 +36,7 @@ public class TrendingFragment extends Fragment implements DataAdapter.OnItemClic
     private TextView emptyText;
     private int trendingOffset = 0;
     private final int LIMIT = 20;
+    private boolean isLoading = false;
 
     @Nullable
     @Override
@@ -65,11 +66,36 @@ public class TrendingFragment extends Fragment implements DataAdapter.OnItemClic
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (!recyclerView.canScrollVertically(1)) {
-                    loadMoreGifs();
+
+                // Kiểm tra nếu không đang tải
+                if (!isLoading) {
+                    // Lấy layout manager hiện tại
+                    StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) trendingRecyclerView.getLayoutManager();
+
+                    if (layoutManager != null) {
+                        // Lấy vị trí các item cuối đang hiển thị
+                        int[] lastVisibleItemPositions = layoutManager.findLastVisibleItemPositions(null);
+                        int lastVisibleItemPosition = getLastVisibleItem(lastVisibleItemPositions);
+
+                        // Nếu vị trí item cuối >= tổng số item - 2 (để buffer), bắt đầu load thêm
+                        if (lastVisibleItemPosition >= trendingModelList.size() - 2) {
+                            loadMoreGifs();
+                        }
+                    }
                 }
             }
         });
+    }
+
+    // Lấy vị trí lớn nhất trong mảng
+    private int getLastVisibleItem(int[] lastVisibleItemPositions) {
+        int maxSize = 0;
+        for (int i = 0; i < lastVisibleItemPositions.length; i++) {
+            if (i == 0 || lastVisibleItemPositions[i] > maxSize) {
+                maxSize = lastVisibleItemPositions[i];
+            }
+        }
+        return maxSize;
     }
 
 
@@ -91,6 +117,7 @@ public class TrendingFragment extends Fragment implements DataAdapter.OnItemClic
                     @SuppressLint("NotifyDataSetChanged")
                     @Override
                     public void onResponse(JSONObject response) {
+                        isLoading = false;
                         try {
                             JSONArray dataArray = response.getJSONArray("data");
 
@@ -116,6 +143,7 @@ public class TrendingFragment extends Fragment implements DataAdapter.OnItemClic
 
                             trendingAdapter.notifyDataSetChanged();
                         } catch (JSONException e) {
+                            isLoading = false;
                             Toast.makeText(getContext(), "Error: " + e, Toast.LENGTH_SHORT).show();
                             e.printStackTrace();
                         }
@@ -124,6 +152,7 @@ public class TrendingFragment extends Fragment implements DataAdapter.OnItemClic
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        isLoading = false;
                         Toast.makeText(getContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -131,9 +160,12 @@ public class TrendingFragment extends Fragment implements DataAdapter.OnItemClic
     }
 
     private void loadMoreGifs() {
-        String url = API.BASE_TRENDING_URL + API.API_KEY + "&limit=" + LIMIT + "&offset=" + trendingOffset;
-        trendingOffset += LIMIT;
-        loadGifs(url);
+        if (!isLoading){
+            isLoading = true;
+            String url = API.BASE_TRENDING_URL + API.API_KEY + "&limit=" + LIMIT + "&offset=" + trendingOffset;
+            trendingOffset += LIMIT;
+            loadGifs(url);
+        }
     }
 
     @Override
