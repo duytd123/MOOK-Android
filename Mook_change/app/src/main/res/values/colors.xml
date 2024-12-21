@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="dark_night">#0B0E23</color>
+    <color name="blue_dark">#1A237E</color>
+    <color name="purple_blue">#6E55E5</color>
+    <color name="purple">#7F3DFF</color>
+    <color name="gray">#9E9E9E</color>
+
+    <color name="primaryTextColor">#FFFFFF</color>
+    <color name="secondaryTextColor">#AAAAAA</color>
+    <color name="clockBackgroundColor">#222222</color>
+    <color name="primaryBorderColor">#FF9800</color>
+    <color name="colorPrimary">#6E55E5</color>  <!-- Purple Blue -->
+    <color name="colorAccent">#FF9800</color>   <!-- Amber -->
+
+
+    <color name="selected_item">#FFEB3B</color> <!-- Màu vàng sáng -->
+    <color name="default_item">#FFFFFF</color> <!-- Màu trắng -->
+
+    <color name="button_background">#4A52B4</color>
+    <color name="button_selected">#25295D</color>
+
+    <style name="Theme.YourApp" parent="Theme.MaterialComponents.DayNight">
+        <item name="colorPrimary">@android:color/transparent</item>
+        <item name="colorPrimaryVariant">@android:color/transparent</item>
+        <item name="colorAccent">@android:color/white</item>
+    </style>
+</resources>

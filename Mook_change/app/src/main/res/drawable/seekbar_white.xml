@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Đường track dưới (màu mờ hơn) -->
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="5dp" />
+            <solid android:color="#66FFFFFF" /> <!-- Trắng mờ -->
+            <size android:height="4dp" />
+        </shape>
+    </item>
+
+    <!-- Đường track trên (màu trắng đầy đủ) -->
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <corners android:radius="5dp" />
+                <solid android:color="#FFFFFF" /> <!-- Trắng đầy đủ -->
+                <size android:height="4dp" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>

@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Sleep JAR</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <dimen name="item_spacing">12dp</dimen>
+
+</resources>

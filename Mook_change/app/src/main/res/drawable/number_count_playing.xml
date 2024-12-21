@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#6E55E5" /> <!-- Màu nền tím -->
+    <size
+        android:width="18dp"
+        android:height="18dp" /> <!-- Kích thước hình tròn -->
+    <corners android:radius="50dp"/> <!-- Bo tròn 100% tạo thành hình tròn -->
+</shape>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+    <!-- Icon -->
+    <ImageView
+        android:id="@+id/image_bg_ambience"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:background="@color/purple_blue"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_river" />
+
+    <!-- Text và SeekBar -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_view_name_sound"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rain"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+        <SeekBar
+            android:id="@+id/seek_bar_volume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="50"
+            android:progressDrawable="@drawable/seekbar_white"
+            android:thumb="@drawable/thumb_white" />
+    </LinearLayout>
+
+    <!-- Nút Cancel -->
+    <ImageView
+        android:id="@+id/cancel_bg"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/ic_cancel" />
+
+</LinearLayout>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_pressed="true">
+        <animator
+            android:duration="100"
+            android:propertyName="scaleX"
+            android:valueFrom="1"
+            android:valueTo="0.9"
+            android:valueType="floatType"/>
+        <animator
+            android:duration="100"
+            android:propertyName="scaleY"
+            android:valueFrom="1"
+            android:valueTo="0.9"
+            android:valueType="floatType"/>
+    </item>
+    <item>
+        <animator
+            android:duration="100"
+            android:propertyName="scaleX"
+            android:valueFrom="0.9"
+            android:valueTo="1"
+            android:valueType="floatType"/>
+        <animator
+            android:duration="100"
+            android:propertyName="scaleY"
+            android:valueFrom="0.9"
+            android:valueTo="1"
+            android:valueType="floatType"/>
+    </item>
+</selector>
